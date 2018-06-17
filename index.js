@@ -4,57 +4,110 @@
 
 'use strict';
 
-const express = require('express'),
-    app = express(),
-    router = express.Router(),
-    path = require('path'),
-    bodyParser = require('body-parser'),
-    port = 9687,
-    isDebug = true;
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const port = 9687;
+const morgan = require('morgan');
 
-const response = { 'response': true };
+const isDebug = true;
+const response = { response: true };
 
-// app.use(bodyParser.urlencoded({extended:true}));
-// app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+app.use(morgan('combined'));
 
 // 로그인
-app.post('/sign', (req, res) => { log('info', '[로그인]'); res.json(response); });
+app.post('/sign', (req, res) => {
+  logMessage('info', '[로그인]');
 
-// 회원가입
-app.post('/user', (req, res) => { log('info', '[회원가입]'); res.json(response); });
-
-// 회사 검색
-app.get('/company/*', (req, res) => { log('info', '[회사 검색]'); res.json(response); });
-
-// 회사 등록
-app.post('/company', (req, res) => { log('info', '[회사 등록]'); res.json(response); });
-
-// 개인 정보 조회
-app.get('/user', (req, res) => { log('info', '[개인 정보 조회]'); res.json(response); });
-
-// 전체 카테고리 조회
-app.get('/category', (req, res) => { log('info', '[전체 카테고리 조회]'); res.json(response); });
-
-// 회사 전용 카테고리 조회
-app.get('/company/category', (req, res) => { log('info', '[회사 전용 카테고리 조회]'); res.json(response); });
-
-// 도서 목록 조회
-app.get('/book/category/*', (req, res) => { log('info', '[도서 목록 조회]'); res.json(response); });
-
-// 도서 검색
-app.get('/book/search/*', (req, res) => { log('info', '[도서 검색]'); res.json(response); });
-
-// 도서 대출
-app.post('/book/rent/*', (req, res) => { log('info', '[도서 대출]'); res.json(response); });
-
-// 도서 반납
-app.delete('/book/rent/*', (req, res) => { log('info', '[도서 반납]'); res.json(response); });
-
-app.listen(port, () => {
-  console.log('[SimpleLibrary Serv with ' + port + ']');
+  response.request = req.body;
+  res.json(response);
 });
 
-const log = (level, msg) => {
+// 회원가입
+app.post('/user', (req, res) => {
+  logMessage('info', '[회원가입]');
+
+  response.request = req.body;
+  res.json(response);
+});
+
+// 회사 검색
+app.get('/company/:searchKeyword', (req, res) => {
+  logMessage('info', '[회사 검색]');
+  logMessage('info', '[회사 검색 키워드: ' + req.params.searchKeyword + ']');
+
+  response.request = req.body;
+  res.json(response);
+});
+
+// 회사 등록
+app.post('/company', (req, res) => {
+  logMessage('info', '[회사 등록]');
+
+  response.request = req.body;
+  res.json(response);
+});
+
+// 개인 정보 조회
+app.get('/user', (req, res) => {
+  logMessage('info', '[개인 정보 조회]');
+
+  response.request = req.body;
+  res.json(response);
+});
+
+// 전체 카테고리 조회
+app.get('/category', (req, res) => {
+  logMessage('info', '[전체 카테고리 조회]');
+
+  response.request = req.body;
+  res.json(response);
+});
+
+// 회사 전용 카테고리 조회
+app.get('/company/category', (req, res) => {
+  logMessage('info', '[회사 전용 카테고리 조회]');
+
+  response.request = req.body;
+  res.json(response);
+});
+
+// 도서 목록 조회 및 검색
+app.get('/books/', (req, res) => {
+  logMessage('info', '[도서 목록 조회 및 검색]');
+  logMessage('info', '[검색 내용: ' + JSON.stringify(req.query) + ']');
+
+  response.request = req.query;
+  res.json(response);
+});
+
+// 도서 대출
+app.post('/book/rent/:bookID', (req, res) => {
+  logMessage('info', '[도서 대출]');
+  logMessage('info', '[도서 아이디: ' + req.params.bookID + ']');
+
+  response.request = req.params;
+  res.json(response);
+});
+
+// 도서 반납
+app.delete('/book/rent/:bookID', (req, res) => {
+  logMessage('info', '[도서 반납]');
+  logMessage('info', '[도서 아이디: ' + req.params.bookID + ']');
+
+  response.request = req.params;
+  res.json(response);
+});
+
+app.listen(port, () => {
+  logMessage('info', '[SimpleLibrary Serv with ' + port + ']');
+});
+
+module.exports = app;
+
+const logMessage = (level, msg) => {
   if (isDebug) {
     console[level](msg);
 

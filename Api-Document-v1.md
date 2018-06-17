@@ -145,8 +145,7 @@ Response {
 # 도서 목록 조회
 
 ```
-GET /book/category/{category}/{pageCount}
-GET /book/category/{category}?pageCount={pageCount}
+GET /books/?category={category}&pageOffset={0}&pagetLimit={10}
 
 Response {
     "result": true / false,
